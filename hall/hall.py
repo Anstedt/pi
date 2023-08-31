@@ -36,6 +36,9 @@ this = time.time()
 
 # Execute "sudo pigpiod" on the command line before running the first time
 pi = pigpio.pi() # connect to local Pi
+if not pi.connected:
+  print("Execute: sudo pigpiod, before running this script")
+  exit()
 
 # HALL is set as an input
 pi.set_mode(HALL, pigpio.INPUT)
