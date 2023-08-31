@@ -48,7 +48,8 @@ def rpm_calc_callback(gpio, level, tick):
   this = time.time()
   RPM = (1/(this - last))*60
   # print(RPM, gpio, level, tick)
-  print("RPM =", RPM)
+  print("RPM = %.1f" % RPM)
+  last = this
 
 # Setup callback for when the status pin goes low, because the status pin is
 # open collector it pulls down when a magnet is sensed.
@@ -56,11 +57,11 @@ rpm_calc = pi.callback(HALL, pigpio.FALLING_EDGE, rpm_calc_callback)
 
 print("Ctrl C to quit")
 try:
-  time.sleep(60)
+  while(1):
+    time.sleep(10)
 except KeyboardInterrupt: # Cleanup on control-c
   rpm_calc.cancel()
   pi.stop()
   print("DONE")
-
 
 pi.stop()
