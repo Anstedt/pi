@@ -5,6 +5,22 @@ import pygame.midi #calling for pygame mixer to play audio files
 from MPR121 import MPR121
 from time import sleep, time
 
+import piano_lists as pl
+
+white_sounds = []
+black_sounds = []
+active_whites = []
+active_blacks = []
+left_oct = 4
+right_oct = 5
+
+left_hand = pl.left_hand
+right_hand = pl.right_hand
+piano_notes = pl.piano_notes
+white_notes = pl.white_notes
+black_notes = pl.black_notes
+black_labels = pl.black_labels
+
 mpr121 = MPR121(3.3, 0x5a)
 oor = mpr121.ReadOOR()
 if oor != 0:
@@ -12,6 +28,13 @@ if oor != 0:
 mpr121.SetProxMode(0) # disable proximity
 
 pygame.mixer.init(48000, -16, 1, 1024)  #initializing audio mixer
+pygame.mixer.set_num_channels(50)
+
+for i in range(len(white_notes)):
+  white_sounds.append(pygame.mixer.Sound(f'assets//notes//{white_notes[i]}.wav'))
+
+for i in range(len(black_notes)):
+  black_sounds.append(pygame.mixer.Sound(f'assets//notes//{black_notes[i]}.wav'))
 
 audio1 = pygame.mixer.Sound("sounds/buzzer.wav")      #calling for audio file
 audio2 = pygame.mixer.Sound("sounds/cartoon002.wav")  #calling for audio file
@@ -53,20 +76,10 @@ try:
     if isTouched[5]:
       channel4.play(audio6)
 
-    if isTouched[6]:
-      pygame.midi.init()
-      player = pygame.midi.Output(0)
-      player.set_instrument(0)
-      player.note_on(60, 127)
-      player.note_on(64, 127)
-      player.note_on(67, 127)
-      sleep(1)
-      player.note_off(60, 127)
-      player.note_off(64, 127)
-      player.note_off(67, 127)
-      del player
-      pygame.midi.quit()
-      
+    for i in range(6,12):
+      if isTouched[i]:
+        white_sounds[i].play(0, 3000)
+
     sleep(0.25)
 
 except KeyboardInterrupt:
