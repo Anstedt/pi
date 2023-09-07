@@ -1,9 +1,15 @@
 from machine import Pin, PWM, ADC
 from time import sleep
+import machine
+import utime
+
 # creating PWM and ADC objects
 adc = machine.ADC(28)
 pwm0 = PWM(Pin(0))     
-Led = PWM(Pin(2)) 
+Led = PWM(Pin(2))
+
+led_onboard = machine.Pin("LED", machine.Pin.OUT)
+
 # setting frequency of PWM output
 pwm0.freq(50)       
 Led.freq(50)  
@@ -16,4 +22,5 @@ while True:
         IN1.low()  
         Led.duty_u16(digital_value)  # writing analog values to the LED 
         print(digital_value)
+        led_onboard.toggle()
         sleep(1)  
