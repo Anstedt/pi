@@ -17,16 +17,16 @@ import pigpio
 #
 # OH3144E or equivalent Hall effect sensor
 #
-# Pin 1 - 5V
-# Pin 2 - Ground
-# Pin 3 - gpio (here P1-8, gpio 14, TXD is used)
+# Pin 1 - 5V, PI Pin 2 
+# Pin 2 - Ground, PI Pin 6
+# Pin 3 - gpio (here P18, gpio 24)
 #
 # The internal gpio pull-up is enabled so that the sensor
 # normally reads high.  It reads low when a magnet is close.
 #
 
-# Using GPIO18 which is physical pin 12, but any standard GPIO will work
-HALL=18
+# Using GPIO24 which is physical pin 18, but any standard GPIO will work
+HALL=24
 
 RPM=0
 
