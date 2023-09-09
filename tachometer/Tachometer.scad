@@ -4,8 +4,8 @@ include <roundedcube.scad>
 difference()
 {
 translate([-5,-5,0])
-    roundedcube([40,22,25]);
-    // cube([40,22,25]);
+    // roundedcube([40,22,25]);
+    cube([40,22,25]);
 translate([-5,-4,1])
     // PICO length, height, width
     cube([40,20,23]);
