@@ -34,6 +34,7 @@ this = ticks_ms()
 TICKS_MS = const(1000)
 def rpm_calc_CB(pin):
   global RPM, this, last, rpm_state
+  Hall_State.high()
   this = ticks_ms()
   # convert to seconds as part of calculation
   diff = ticks_diff(this, last) # Handles roll over
@@ -73,7 +74,8 @@ while True:                     # Run an endless loop - Typical main loop
     wri.set_textpos(oled, row=8, col=0)  # In case a previous test has altered this
     wri.printstring(rpm)
     oled.show()
-
+    Hall_State.low()
+      
   rpm_state = False
 
   sleep(1/RATE)                   # Slow things down to see states
