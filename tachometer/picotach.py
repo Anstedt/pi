@@ -51,31 +51,29 @@ RATE=const(10) # Loops per second
 TIMEOUT=const(60*RATE) # rates down to 1 RPM will work
 
 print("Ready, Set, Go!")
-while True:                     # Run an endless loop - Typical main loop
-  oled.fill(0)
-  # Track how long the sensor has not hit
-  if (rpm_state):
-    rpm_counter = TIMEOUT
-  else:
-    # If we have not seen a sensor hit in 60 seconds, TIMEOUT, then reset the
-    # RPM to zero
-    rpm_counter -= 1
-    if (rpm_counter <= 0):
-      RPM = 0
-      rpm_counter = 0
+try:
+  while True:                     # Run an endless loop - Typical main loop
+    # Track how long the sensor has not hit
+    if (rpm_state):
+      rpm_counter = TIMEOUT
+    else:
+      # If we have not seen a sensor hit in TIMEOUT second, then reset RPM to zero
+      rpm_counter -= 1
+      if (rpm_counter <= 0):
+        RPM = 0
+        rpm_counter = 0
 
-  if (rpm_state or rpm_counter == 0):
-    # Only draw if we have new values
-    rpm = str(float(RPM))
-    i, p, d = rpm.partition('.')
-    n=1 # Show only first digit after .
-    rpm = '.'.join([i, (d+'0'*n)[:n]])
-    rpm = " RPM: "+rpm
-    wri.set_textpos(oled, row=8, col=0)  # In case a previous test has altered this
-    wri.printstring(rpm)
-    oled.show()
-    Hall_State.low()
+    # Print if we have new values or 0
+    if (rpm_state or rpm_counter == 0):
+      oled.fill(0)
+      wri.set_textpos(oled, row=8, col=0)  # In case a previous test has altered this
+      wri.printstring("RPM: {0:1.1f}".format(RPM))
+      oled.show()
+      Hall_State.low()
       
-  rpm_state = False
+    rpm_state = False
 
-  sleep(1/RATE)                   # Slow things down to see states
+    sleep(1/RATE)                   # Slow things down to see states
+
+except KeyboardInterrupt:
+  print("Good Bye")
