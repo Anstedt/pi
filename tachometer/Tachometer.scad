@@ -1,13 +1,13 @@
 include <roundedcube.scad>
-// Box length, height, width
-o_L = 43;
+// Box length, width, height
+o_L = 54.5;
+o_W = 24;
 o_H = 22;
-o_W = 25;
 
-// PICO length, height, width
-i_L = 41;
+// PICO length, width, height
+i_L = 52.5;
+i_W = 22;
 i_H = 20;
-i_W = 23;
 
 // Subtract from first item
 difference()
@@ -23,9 +23,9 @@ translate([-5,-4,1])
 // y=move across height
 // z=move across width
 // Close but needs better measurements
-translate([34,6,20])
+translate([47,6,20])
     rotate(a=[0,90,0])
-        cylinder(d=4, h=5);
+        cylinder(d=4, h=4);
 // X controls distance from front
 // Y controls distance appart
 // Z left alone to put hole in bottom
@@ -35,3 +35,8 @@ translate([-3,3,0])
 translate([-3,9,0])
     cylinder(d=2, h=5);
 }
+
+// translate([47,6,20])
+//    rotate(a=[0,90,0])
+//        cylinder(d=4, h=4);
+
