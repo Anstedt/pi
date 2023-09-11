@@ -1,19 +1,19 @@
 include <roundedcube.scad>
 // Box length, width, height
 o_L = 54.5;
+o_H = 24;
 o_W = 24;
-o_H = 22;
 
 // PICO length, width, height
 i_L = 54.5;
+i_H = 22;
 i_W = 22;
-i_H = 20;
 
 // How far apart the mount holes
 m_D = 11;
 
 // Sensor Height, measured from table top to middle of sensor
-s_H = 16;
+s_H = 18;
 
 w_W = 1; // Wall width
 
@@ -22,15 +22,15 @@ difference()
 {
 // translate([0, 0, 0])
 // External cube
-roundedcube([o_L, o_H, o_W]);
+roundedcube([o_L, o_W, o_H]);
 // cube([o_L, o_H, o_W]);
 translate([w_W, w_W, w_W])
-    cube([i_L, i_H, i_W]);
+    cube([i_L, i_W, i_H]);
 // x=move along lenght
 // y=move across height
 // z=move across width
 // The +1 is off inner floor 
-translate([0, i_W/2, s_H+w_W])
+translate([0, (i_W/2)+1, s_H+w_W])
     rotate(a=[0,90,0])
         cylinder(d=4, h=4);
 // X controls distance from front
