@@ -9,6 +9,16 @@ i_L = 54.5;
 i_H = 22;
 i_W = 22;
 
+// Display Dimension
+d_L = 28;
+d_H = 3;
+d_W = 11;
+
+// Display Offsets
+do_L = 13;
+do_H = 0;
+do_W = (o_W/2) - (d_W/2);
+
 // How far apart the mount holes
 m_D = 11;
 
@@ -37,10 +47,12 @@ translate([0, (i_W/2)+1, s_H+w_W])
 // Y controls distance appart
 // Z left alone to put hole in bottom
 // Distance appart is 6 based on measurement
-translate([3, (i_W/2)-(m_D/2), 0])
+translate([o_L-2, (i_W/2)-(m_D/2), 0])
     cylinder(d=2, h=5);
-translate([3, (i_W/2)+(m_D/2), 0])
+translate([o_L-2, (i_W/2)+(m_D/2), 0])
     cylinder(d=2, h=5);
+translate([do_L, do_W, do_H])
+    cube([d_L, d_W, d_H]); 
 }
 
 
