@@ -1,5 +1,5 @@
 include <roundedcube.scad>
-// Box length, width, height
+// Box length, height, width
 o_L = 54.5;
 o_H = 24;
 o_W = 24;
@@ -10,12 +10,12 @@ i_H = 22;
 i_W = 22;
 
 // Display Dimension
-d_L = 28;
+d_L = 25;
 d_H = 3;
 d_W = 11;
 
 // Display Offsets
-do_L = 13;
+do_L = 14.5;
 do_H = 0;
 do_W = (o_W/2) - (d_W/2);
 
@@ -42,12 +42,12 @@ translate([w_W, w_W, w_W])
 // The +1 is off inner floor 
 translate([0, (i_W/2)+1, s_H+w_W])
     rotate(a=[0,90,0])
-        cylinder(d=4, h=4);
+        cylinder(d=5, h=4);
 // X controls distance from front
 // Y controls distance appart
 // Z left alone to put hole in bottom
 // Distance appart is 6 based on measurement
-translate([o_L-2, (i_W/2)-(m_D/2), 0])
+translate([o_L-2, (i_W/2)-(m_D/2) - w_W, 0])
     cylinder(d=2, h=5);
 translate([o_L-2, (i_W/2)+(m_D/2), 0])
     cylinder(d=2, h=5);
