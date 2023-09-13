@@ -1,18 +1,18 @@
 include <roundedcube.scad>
 // Box length, height, width
 o_L = 54.5;
-o_H = 24;
+o_H = 26;
 o_W = 24;
 
 // PICO length, width, height
 i_L = 54.5;
-i_H = 22;
+i_H = 24;
 i_W = 22;
 
 // Display Dimension
 d_L = 25;
 d_H = 3;
-d_W = 11;
+d_W = 9;
 
 // Display Offsets
 do_L = 14.5;
@@ -23,14 +23,14 @@ do_W = (o_W/2) - (d_W/2);
 m_D = 11;
 
 // Sensor Height, measured from table top to middle of sensor
-s_H = 18;
+s_H = 17;
 
 w_W = 1; // Wall width
 
 // Bottom mounts
 m_L = 38; // Length
-m_H = 4; // Clears OLED
-m_W = 2; // Width
+m_H = 5;  // Clears OLED
+m_W = 2;  // Width
 
 // Subtract from first item
 difference()
@@ -72,15 +72,15 @@ translate([w_W, i_W-w_W, w_W])
 difference()
 {
 translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 1])
-    cylinder(d=4, h=4);
+    cylinder(d=4, h=m_H);
 translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 0])
-    cylinder(d=2, h=5);
+    cylinder(d=2, h=m_H+1);
 }
 
 difference()
 {
 translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 1])
-    cylinder(d=4, h=4);
+    cylinder(d=4, h=m_H);
 translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 0])
-    cylinder(d=2, h=5);
+    cylinder(d=2, h=m_H+1);
 }
