@@ -27,6 +27,11 @@ s_H = 18;
 
 w_W = 1; // Wall width
 
+// Bottom mounts
+m_L = 38; // Length
+m_H = 4; // Clears OLED
+m_W = 2; // Width
+
 // Subtract from first item
 difference()
 {
@@ -47,16 +52,32 @@ translate([0, (i_W/2)+1, s_H+w_W])
 // Y controls distance appart
 // Z left alone to put hole in bottom
 // Distance appart is 6 based on measurement
-translate([o_L-2, (i_W/2)-(m_D/2) - w_W, 0])
+translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 0])
     cylinder(d=2, h=5);
-translate([o_L-2, (i_W/2)+(m_D/2), 0])
+translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 0])
     cylinder(d=2, h=5);
 translate([do_L, do_W, do_H])
     cube([d_L, d_W, d_H]); 
 }
+// Side mountds
+translate([w_W, w_W, w_W])
+    cube([m_L, m_W, m_H]);
+    
+translate([w_W, i_W-w_W, w_W])
+    cube([m_L, m_W, m_H]);
 
+difference()
+{
+translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 1])
+    cylinder(d=4, h=4);
+translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 0])
+    cylinder(d=2, h=5);
+}
 
-// translate([47,6,20])
-//    rotate(a=[0,90,0])
-//        cylinder(d=4, h=4);
-
+difference()
+{
+translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 1])
+    cylinder(d=4, h=4);
+translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 0])
+    cylinder(d=2, h=5);
+}
