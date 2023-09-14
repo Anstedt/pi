@@ -29,15 +29,15 @@ difference()
 {
 // Inner ridge surface, subtract -0.2 for tolerance fit
 translate([2, 1+0.1, 1+0.1])
-    roundedcube([4, i_W-0.2, i_H-0.2]);
+    roundedcube([5, i_W-0.14, i_H-0.14], false, 0.5, "xmax");
 // Remove center of inner ridge
 translate([2, 3, 3])
-    cube([4, i_W-4, i_H-4]);
+    cube([5, i_W-4, i_H-4]);
 // Remove sides for board room
 translate([2, 1, 4])
-    cube([4, i_W, 8]);
+    cube([5, i_W, 8]);
 // Remove room for posts
 translate([2, 4, 1])
-    cube([4, p_O, 8]);
+    cube([5, p_O, 8]);
 }
 
