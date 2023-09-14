@@ -34,8 +34,8 @@ m_W = 2;  // Width
 
 // Upper side mounts
 u_L = 5; // Length
-u_H = 2; // Clears OLED
-u_W = 2;  // Width
+u_H = 2; // Clear PICO
+u_W = 2; // Width
 
 // Subtract from first item
 difference()
@@ -74,10 +74,10 @@ translate([w_W, i_W-w_W, w_W])
     cube([m_L, m_W, m_H]);
 
 // Upper side mounts
-translate([w_W, w_W, m_H + 2])
+translate([w_W, w_W, m_H + 2.2])
     cube([u_L, u_W, u_H]);
 
-translate([w_W, i_W-w_W, m_H + 2])
+translate([w_W, i_W-w_W, m_H + 2.2])
     cube([u_L, u_W, u_H]);
     
     
