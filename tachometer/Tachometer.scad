@@ -1,11 +1,11 @@
 include <roundedcube.scad>
 // Box length, height, width
-o_L = 54.5;
+o_L = 55.5;
 o_H = 26;
 o_W = 24;
 
 // PICO length, width, height
-i_L = 54.5;
+i_L = 55.5;
 i_H = 24;
 i_W = 22;
 
@@ -33,7 +33,7 @@ m_H = 5;  // Clears OLED
 m_W = 2;  // Width
 
 // Upper side mounts
-u_L = 3; // Length
+u_L = 5; // Length
 u_H = 2; // Clears OLED
 u_W = 2;  // Width
 
@@ -58,9 +58,9 @@ translate([0, (i_W/2)+1, s_H+w_W])
 // Z left alone to put hole in bottom
 // Distance appart is 6 based on measurement
 // Small mount holes
-translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 0])
+translate([o_L-3, ((i_W/2)+w_W) - (m_D/2), 0])
     cylinder(d=2, h=5);
-translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 0])
+translate([o_L-3, ((i_W/2)+w_W) + (m_D/2), 0])
     cylinder(d=2, h=5);
 // OLED display opening
 translate([do_L, do_W, do_H])
@@ -84,16 +84,16 @@ translate([w_W, i_W-w_W, m_H + 2])
  // Hole mountes
 difference()
 {
-translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 1])
+translate([o_L-3, ((i_W/2)+w_W) - (m_D/2), 1])
     cylinder(d=4, h=m_H);
-translate([o_L-2, ((i_W/2)+w_W) - (m_D/2), 0])
+translate([o_L-3, ((i_W/2)+w_W) - (m_D/2), 0])
     cylinder(d=2, h=m_H+1);
 }
 
 difference()
 {
-translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 1])
+translate([o_L-3, ((i_W/2)+w_W) + (m_D/2), 1])
     cylinder(d=4, h=m_H);
-translate([o_L-2, ((i_W/2)+w_W) + (m_D/2), 0])
+translate([o_L-3, ((i_W/2)+w_W) + (m_D/2), 0])
     cylinder(d=2, h=m_H+1);
 }
