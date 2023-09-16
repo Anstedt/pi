@@ -1,6 +1,6 @@
 import machine
 import time
-from time import sleep, ticks_ms, ticks_diff
+from time import sleep, ticks_us, ticks_diff
 
 # NOTE: Use Thonny on PI to install micropython-ssd1306 to PICO
 
@@ -27,18 +27,18 @@ wri.set_textpos(oled, row=0, col=0)
 RPM=0
 rpm_state = True
 rpm_counter = 0
-last = ticks_ms()
-this = ticks_ms()
+last = ticks_us()
+this = ticks_us()
 
 # Since we use ms ticks we need to divide by that to get seconds
-TICKS_MS = const(1000)
+TICKS_US = const(1000000)
 def rpm_calc_CB(pin):
   global RPM, this, last, rpm_state
   Hall_State.high()
-  this = ticks_ms()
+  this = ticks_us()
   # convert to seconds as part of calculation
   diff = ticks_diff(this, last) # Handles roll over
-  RPM = (1/((diff)/TICKS_MS))*60
+  RPM = (1/((diff)/TICKS_US))*60
   # print("RPM = %.1f" % RPM)
   rpm_state = True
   last = this
