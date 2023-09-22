@@ -4,6 +4,8 @@
 - PIC or PICO W: Amazon as well as Seed Studios
 - 128x32 OLED: https://www.amazon.com/gp/product/B085NHM5TC
 - HALL sensor: https://www.amazon.com/dp/B01NBE2XIR
+- Standoffs and screws to mount sensor and board to case:
+  https://www.amazon.com/dp/B0BXT4FG1T?psc=1&ref=ppx_yo2ov_dt_b_product_details
 
 # Software
 - Install micropython via .uf2 file to PICO
@@ -15,3 +17,10 @@
   Then either fill in main.py or click on the main.py that is already there.
   Power cycle PICO
   After this you only need power from a USB cable. NO HOST REQUIRED
+
+# Case
+- Use .stl as is. The cover may not be tight enough so a little tape
+  OR mounting putty on edges
+
+# Pictures
+- Modified sensor board to extend sensor:

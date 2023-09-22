@@ -1,4 +1,4 @@
-HEIGHT = 13;
+HEIGHT = 12;
 HOLE = 5;
 TOP_R = 3;
 BOT_R = 4;
