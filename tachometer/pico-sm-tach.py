@@ -11,9 +11,17 @@ import sys
 def hall_sensor():
   pull() # Pull data from TX FIFO and put it in osr
   in_(osr,32) # Shift 32 bits data from osr to isr
+  mov(y, osr)
+  label("loop")
+  jmp(pin, "DOWN") # See StateMachine(...,jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))
   set(x,0)
   in_(x,1) # shift isr left by 1
+  jmp("loop")
+  label("DOWN")
+  mov(isr, y)
   push()
+  jmp("loop")
+  
   
   # label("main")
   # pull(noblock)
@@ -31,19 +39,34 @@ def hall_sensor():
 class PicoTach:
   def __init__(self):
     # self.sma = StateMachine(1, hall_sensor, freq=1000000, set_base=Pin(22))  # Instantiate SM1, GPIO22
-    self.sma = StateMachine(1, hall_sensor, freq=1000000, in_base=Pin(22))  # Instantiate SM1, GPIO22
+    self.sma = StateMachine(1, hall_sensor, freq=1000000, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
     # self.sma.put(0xffffffff) or pick a much larger number
     self.sma.put(0xffff) # 65535
-    print("Words in tx", self.sma.tx_fifo())
-    print("Words in rx", self.sma.rx_fifo())
-    print("Run")
     self.sma.active(1)
     sleep(1)
+  
+  def calc(self):
+    try:
+      while True:  
+        if (self.sma.rx_fifo() != 0):
+          # print("Words in tx", self.sma.tx_fifo())
+          print("Words in rx", self.sma.rx_fifo())
+          # print("Run")
+          # print("Words in tx", self.sma.tx_fifo())
+          # print("Words in rx", self.sma.rx_fifo())
+          print("Get from rx", self.sma.get(None, 0))
+          print("Get from rx", self.sma.get())
+#        else:
+#          print(".")
+        
+    except KeyboardInterrupt:
+      print("Good Bye")
+    
+  def done(self):
     print("Stop")
     self.sma.active(0)
-    print("Words in tx", self.sma.tx_fifo())
-    print("Words in rx", self.sma.rx_fifo())
-    print("Get from rx", self.sma.get())
-
+      
 picotach = PicoTach()
+picotach.calc()
 sleep(2)
+picotach.done()
