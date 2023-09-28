@@ -16,7 +16,7 @@ def hall_sensor():
   jmp(pin, "DOWN") # See StateMachine(...,jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))
   set(x,0)
   in_(x,1) # shift isr left by 1
-  jmp("loop")
+  # jmp("loop")
   label("DOWN")
   mov(isr, y)
   push()
@@ -43,18 +43,18 @@ class PicoTach:
     # self.sma.put(0xffffffff) or pick a much larger number
     self.sma.put(0xffff) # 65535
     self.sma.active(1)
-    sleep(1)
+    # sleep(1)
   
   def calc(self):
     try:
       while True:  
-        if (self.sma.rx_fifo() != 0):
+        if (self.sma.rx_fifo() != 4):
           # print("Words in tx", self.sma.tx_fifo())
           print("Words in rx", self.sma.rx_fifo())
           # print("Run")
           # print("Words in tx", self.sma.tx_fifo())
           # print("Words in rx", self.sma.rx_fifo())
-          print("Get from rx", self.sma.get(None, 0))
+          # print("Get from rx", self.sma.get(None, 0))
           print("Get from rx", self.sma.get())
 #        else:
 #          print(".")
