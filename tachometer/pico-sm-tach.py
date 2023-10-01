@@ -9,21 +9,26 @@ import sys
 # (autopull=true, pull_thresh=16) Not sure if useful to me
 @asm_pio(set_init=PIO.OUT_HIGH)
 def hall_sensor():
-  label("loop")
+  # label("loop")
   pull(block) # Pull data from TX FIFO and put it in osr
   in_(osr,32) # Shift 32 bits data from osr to isr
-  mov(y, osr)
-  in_(y, 32)
+  mov(x, osr) # Save X to use as counter start point
+
+  label("loop")
+  mov(y, x)
+  # in_(y, 32)
   # push()
 
   # Wait for the magnet
   label("high")
-  jmp(y_dec, "inc")
-  label("inc")
+  jmp(y_dec, "inchigh") # Jump if Y NOT zero before decrement
+  label("inchigh")
   jmp(pin, "high") # Wait for low, magnet sensed when low
 
-  # This should wait till magnet gone
+  # Wait till magnet gone
   label("low")
+  jmp(y_dec, "inclow") # Jump if Y NOT zero before decrement
+  label("inclow")
   jmp(pin, "out")
   jmp("low")
 
@@ -31,32 +36,6 @@ def hall_sensor():
   in_(y , 32)
   push()
   jmp("loop")
-
-  # pull() # Pull data from TX FIFO and put it in osr
-  # in_(osr,32) # Shift 32 bits data from osr to isr
-  # mov(y, osr)
-  # label("loop")
-  # jmp(pin, "DOWN") # See StateMachine(...,jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))
-  # set(x,0)
-  # in_(x,1) # shift isr left by 1
-  # # jmp("loop")
-  # label("DOWN")
-  # mov(isr, y)
-  # push()
-  # jmp("loop")
-
-  # label("main")
-  # pull(noblock)
-  # mov(x,osr)          # save x so a pull without data returns x
-  # jmp(not_x, "main")  # If x is 0 stop pulsing till we get a non-zero value
-  # set(pins, 1) [3]    # Turn pin on for 4 1mhz clocks cycles or 4 us delay
-  # set(pins, 0)        # Turn pin off
-  # mov(y,osr)          # Now get the low delay time
-  # label("delay")
-  # pull(noblock)       # Keep getting the latest value or x if no new values
-  # mov(x,osr)          # Remember mov() is right to left
-  # jmp(y_dec, "delay")
-  # jmp("main")         # Jump back to the beginning
 
 class PicoTach:
   def __init__(self):
@@ -68,25 +47,17 @@ class PicoTach:
     # sleep(1)
   
   def calc(self):
-    self.sma.put(0xffff)
-    pushcnt = 10000
+    pushcnt = 1000000000
+    self.sma.put(pushcnt)
     print("pushcnt tx_fifo get")
     try:
       while True:
         if (self.sma.rx_fifo()):
-          print(pushcnt, self.sma.rx_fifo(), self.sma.get())
-          pushcnt += 1
-          self.sma.put(pushcnt)
-          sleep(2)
-          # print("Words in tx", self.sma.tx_fifo())
-          # print("Words in rx", self.sma.rx_fifo())
-          # print("Run")
-          # print("Words in tx", self.sma.tx_fifo())
-          # print("Words in rx", self.sma.rx_fifo())
-          # print("Get from rx", self.sma.get(None, 0))
-          # print("Get from rx", self.sma.get())
-#        else:
-#          print(".")
+          # print(pushcnt, self.sma.rx_fifo(), self.sma.get())
+          print(pushcnt - self.sma.get())
+          # pushcnt += 1
+          # self.sma.put(pushcnt)
+          # sleep(2)
         
     except KeyboardInterrupt:
       print("Good Bye")
