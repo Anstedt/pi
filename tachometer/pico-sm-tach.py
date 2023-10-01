@@ -9,20 +9,42 @@ import sys
 # (autopull=true, pull_thresh=16) Not sure if useful to me
 @asm_pio(set_init=PIO.OUT_HIGH)
 def hall_sensor():
-  pull() # Pull data from TX FIFO and put it in osr
+  label("loop")
+  pull(block) # Pull data from TX FIFO and put it in osr
   in_(osr,32) # Shift 32 bits data from osr to isr
   mov(y, osr)
-  label("loop")
-  jmp(pin, "DOWN") # See StateMachine(...,jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))
-  set(x,0)
-  in_(x,1) # shift isr left by 1
-  # jmp("loop")
-  label("DOWN")
-  mov(isr, y)
+  in_(y, 32)
+  # push()
+
+  # Wait for the magnet
+  label("high")
+  jmp(y_dec, "inc")
+  label("inc")
+  jmp(pin, "high") # Wait for low, magnet sensed when low
+
+  # This should wait till magnet gone
+  label("low")
+  jmp(pin, "out")
+  jmp("low")
+
+  label("out")
+  in_(y , 32)
   push()
   jmp("loop")
-  
-  
+
+  # pull() # Pull data from TX FIFO and put it in osr
+  # in_(osr,32) # Shift 32 bits data from osr to isr
+  # mov(y, osr)
+  # label("loop")
+  # jmp(pin, "DOWN") # See StateMachine(...,jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))
+  # set(x,0)
+  # in_(x,1) # shift isr left by 1
+  # # jmp("loop")
+  # label("DOWN")
+  # mov(isr, y)
+  # push()
+  # jmp("loop")
+
   # label("main")
   # pull(noblock)
   # mov(x,osr)          # save x so a pull without data returns x
@@ -41,21 +63,28 @@ class PicoTach:
     # self.sma = StateMachine(1, hall_sensor, freq=1000000, set_base=Pin(22))  # Instantiate SM1, GPIO22
     self.sma = StateMachine(1, hall_sensor, freq=1000000, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
     # self.sma.put(0xffffffff) or pick a much larger number
-    self.sma.put(0xffff) # 65535
+    # self.sma.put(0xffff) # 65535
     self.sma.active(1)
     # sleep(1)
   
   def calc(self):
+    self.sma.put(0xffff)
+    pushcnt = 10000
+    print("pushcnt tx_fifo get")
     try:
-      while True:  
-        if (self.sma.rx_fifo() != 4):
+      while True:
+        if (self.sma.rx_fifo()):
+          print(pushcnt, self.sma.rx_fifo(), self.sma.get())
+          pushcnt += 1
+          self.sma.put(pushcnt)
+          sleep(2)
           # print("Words in tx", self.sma.tx_fifo())
-          print("Words in rx", self.sma.rx_fifo())
+          # print("Words in rx", self.sma.rx_fifo())
           # print("Run")
           # print("Words in tx", self.sma.tx_fifo())
           # print("Words in rx", self.sma.rx_fifo())
           # print("Get from rx", self.sma.get(None, 0))
-          print("Get from rx", self.sma.get())
+          # print("Get from rx", self.sma.get())
 #        else:
 #          print(".")
         
