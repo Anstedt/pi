@@ -10,9 +10,9 @@ import sys
 @asm_pio(set_init=PIO.OUT_HIGH)
 def hall_sensor():
   # label("loop")
-  pull(block) # Pull data from TX FIFO and put it in osr
-  in_(osr,32) # Shift 32 bits data from osr to isr
-  mov(x, osr) # Save X to use as counter start point
+  pull(block) # Get count down value from main in osr
+  # in_(osr,32) # Shift 32 bits data from osr to isr
+  mov(x, osr) # Save X to use as count down start point
 
   label("loop")
   mov(y, x)
@@ -32,32 +32,37 @@ def hall_sensor():
   jmp(pin, "out")
   jmp("low")
 
+  # Done so send count down value to main
   label("out")
-  in_(y , 32)
-  push()
+  in_(y, 32) # Save y to isr
+  push()     # send isr to main
   jmp("loop")
 
 class PicoTach:
   def __init__(self):
-    # self.sma = StateMachine(1, hall_sensor, freq=1000000, set_base=Pin(22))  # Instantiate SM1, GPIO22
-    self.sma = StateMachine(1, hall_sensor, freq=1000000, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
-    # self.sma.put(0xffffffff) or pick a much larger number
-    # self.sma.put(0xffff) # 65535
+    self.freq = 1000000
+    self.sma = StateMachine(1, hall_sensor, freq=self.freq, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
     self.sma.active(1)
     # sleep(1)
   
   def calc(self):
-    pushcnt = 1000000000
-    self.sma.put(pushcnt)
+    # Loop time high = 2 low = 3, not sure how long is jump to label
+    loop_ticks = 2 + 3 # How many ticks per loop
+    countstart = 1000000000
+    self.sma.put(countstart)
     print("pushcnt tx_fifo get")
     try:
       while True:
         if (self.sma.rx_fifo()):
-          # print(pushcnt, self.sma.rx_fifo(), self.sma.get())
-          print(pushcnt - self.sma.get())
-          # pushcnt += 1
-          # self.sma.put(pushcnt)
-          # sleep(2)
+          # ticks_us = 1us
+          # loop_ticks_us = ticks_us * loop_ticks
+          # ticks = counterstart - get
+          # So this tells us the number of us that have gone by
+          # us = (countstart - self.sma.get()) * loop_ticks
+          # Convert to seconds
+          # secs = us / 1000000
+          # rpm = 1/(secs)*60
+          print((1/(((countstart - self.sma.get()) * loop_ticks) / 1000000))*60)
         
     except KeyboardInterrupt:
       print("Good Bye")
