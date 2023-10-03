@@ -5,6 +5,20 @@ from time import sleep, sleep_ms, sleep_us, ticks_us
 import select
 import sys
 
+# Design
+#
+# Count pulses using sm. Count from magnet sensed to no magnet sensed and back
+# magnet sensed. Note magnet sensed is a low on HALL sensor.
+#
+# ---.   ,-
+#    |   |
+#    `---'
+# ^
+# Wait for magnet, first loop. NOTE: HALL sensor is high when no magnet
+#    ^
+#    Magnet sensed, waiting for no magnet, second loop
+#         ^ Magnet gone, REPORT results to main and start over
+
 # Count pulses, send count to main and reset on HALL change
 @asm_pio(set_init=PIO.OUT_HIGH)
 def hall_sensor():
@@ -18,22 +32,34 @@ def hall_sensor():
   # Wait for the magnet, add one extra nop this makes each Y(tick) = 3us
   label("high")
   jmp(y_dec, "inchigh") [1] # Jump if Y NOT zero before decrement
+  jmp("outzero") # NOT included in loop count since it only happens on underflow
   label("inchigh")
   jmp(pin, "high") # Wait for low, magnet sensed when low
 
   # Wait till magnet gone, already 3 us because of extra jump
   label("low")
   jmp(y_dec, "inclow") # Jump if Y NOT zero before decrement
+  jmp("outzero") # NOT included in loop count since it only happens on underflow
   label("inclow")
   jmp(pin, "out")
   jmp("low")
 
+  label("outzero") # If we hit 0, send the count back as an indicator we rolled over
+  mov(y, x)
+  
   # Done so send count down value to main
   label("out")
   in_(y, 32) # Save y to isr
   push()     # send isr to main
   jmp("loop")
 
+# TERMS
+# ticks, number of Y decrements in sm.
+# freq = instructions per second of the state machine
+# sm instructions_per_loop = 3, calculated by reviewing sm steps. Each sm loop takes 3 steps
+# ticks_period = instructions_per_loop / freq, instructions / instructions per second
+# tick_countstart is the tick star counter for the sm
+# HJA HJA overhead, the extra time used in the outer loop, units are based on freq
 class PicoTach:
   def __init__(self):
     self.freq = 1000000
@@ -42,25 +68,27 @@ class PicoTach:
     # sleep(1)
   
   def calc(self):
-    # Loop time high = 2 low = 3, not sure how long is jump to label
     # each loop is 3 ticks or 3us, which means are our 
-    ticks3us = 3 # How many ticks per sm loop
-    countstart = 1000000000
-    overhead = 4 # time in us of overhead for full "loop"
-    self.sma.put(countstart)
+    instructions_per_loop = 3 # How many ticks per sm loop
+    tick_countstart = 4 * (self.freq/instructions_per_loop) # 1000000000 # for 30 seconds to 0, 30 * (freq / instructions_per_loop)
+    overhead = 4 # HJA time in us of overhead for full "loop"
+    overhead_period = overhead / self.freq # How long per tick
+    tick_period = instructions_per_loop / self.freq # How long per tick
+    self.sma.put(int(tick_countstart))
     print("pushcnt tx_fifo get")
+    print("start=", tick_countstart, " int start=", int(tick_countstart))
     try:
       while True:
         if (self.sma.rx_fifo()):
-          # each tick = 3us
-          # us = (counterstart - get) * ticks3us
-          # So if counterstart - get == 2 then 6us have gone by
-          # us = (countstart - self.sma.get()) * ticks3us
-          # us = us + overhead of loop, based on sm loop analysis
-          # Convert to seconds
-          # secs = us / 1000000
-          # rpm = 1/(secs)*60
-          print((1/( (((countstart - self.sma.get()) * ticks3us) + overhead) / 1000000))*60)
+          ticks_from_sm = self.sma.get()
+          if (ticks_from_sm != int(tick_countstart)):
+            ticks = tick_countstart - ticks_from_sm # How many ticks
+            period = (ticks * tick_period) + overhead_period # total time that has pasted
+            rpm = (1/period) * 60 # time in seconds to minutes, 1/time_secs period to rate / second, * 60
+          else:
+            rpm = 0
+          print(ticks_from_sm, rpm)
+          # print((1/( (((tick_countstart - self.sma.get()) * instructions_per_loop) + overhead) / self.freq))*60)
         
     except KeyboardInterrupt:
       print("Good Bye")
