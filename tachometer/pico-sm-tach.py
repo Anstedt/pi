@@ -70,24 +70,24 @@ class PicoTach:
   def calc(self):
     # each loop is 3 ticks or 3us, which means are our 
     instructions_per_loop = 3 # How many ticks per sm loop
-    tick_countstart = 4 * (self.freq/instructions_per_loop) # 1000000000 # for 30 seconds to 0, 30 * (freq / instructions_per_loop)
-    overhead = 4 # HJA time in us of overhead for full "loop"
+    tick_countstart = int(30 * (self.freq/instructions_per_loop)) # 1000000000 # for 30 seconds to 0, 30 * (freq / instructions_per_loop)
+    overhead = 4 # number of overhead instructions for full "loop"
     overhead_period = overhead / self.freq # How long per tick
     tick_period = instructions_per_loop / self.freq # How long per tick
     self.sma.put(int(tick_countstart))
     print("pushcnt tx_fifo get")
-    print("start=", tick_countstart, " int start=", int(tick_countstart))
+    print("tick_countstart=", tick_countstart)
     try:
       while True:
         if (self.sma.rx_fifo()):
           ticks_from_sm = self.sma.get()
-          if (ticks_from_sm != int(tick_countstart)):
+          if (ticks_from_sm != tick_countstart):
             ticks = tick_countstart - ticks_from_sm # How many ticks
             period = (ticks * tick_period) + overhead_period # total time that has pasted
             rpm = (1/period) * 60 # time in seconds to minutes, 1/time_secs period to rate / second, * 60
           else:
             rpm = 0
-          print(ticks_from_sm, rpm)
+          print(rpm)
           # print((1/( (((tick_countstart - self.sma.get()) * instructions_per_loop) + overhead) / self.freq))*60)
         
     except KeyboardInterrupt:
