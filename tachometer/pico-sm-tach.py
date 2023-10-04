@@ -52,24 +52,26 @@ def hall_sensor():
 
 # TERMS
 # ticks, number of Y decrements in sm.
-# freq = instructions per second of the state machine
-# sm instructions_per_loop = 3, calculated by reviewing sm steps. Each sm loop takes 3 steps
+# sm FREQ = instructions per second of the state machine
+# sm INSTRUCTIONS_PER_LOOP = 3, calculated by reviewing sm steps. Each sm loop takes 3 steps
 # ticks_period = instructions_per_loop / freq, instructions / instructions per second
 # tick_countstart is the tick star counter for the sm
-# HJA HJA overhead, the extra time used in the outer loop, units are based on freq
+FREQ               = const(1000000)
+INSTRUCTS_PER_LOOP = const(3) # sm instructions in the counter loops, high and low loops are the same, that controls ticks
+ROLL_UNDER         = const(4294967295) # When Y rolls under this is what we get, used to determine 0 RPM
+TICK_COUNTSTART    = int(30 * (FREQ/INSTRUCTS_PER_LOOP)) # Count down for 30 secs, return ROLL_UNDER and restart
+OVERHEAD           = const(4) # number of overhead instructions for full "loop"
+OVERHEAD_PERIOD    = OVERHEAD / FREQ # How long per tick
+TICK_PERIOD        = INSTRUCTS_PER_LOOP / FREQ # How long per tick
+    
 class PicoTach:
   def __init__(self):
-    self.freq = 1000000
-    self.sma = StateMachine(1, hall_sensor, freq=self.freq, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
+
+    self.sma = StateMachine(1, hall_sensor, freq=FREQ, jmp_pin=Pin(22, Pin.IN, Pin.PULL_UP))  # Instantiate SM1, GPIO22
     self.sma.active(1)
   
   def calc(self):
-    instructions_per_loop = 3 # How many ticks per sm loop
-    tick_countstart = int(30 * (self.freq/instructions_per_loop)) # 1000000000 # for 30 seconds to 0, 30 * (freq / instructions_per_loop)
-    overhead = 4 # number of overhead instructions for full "loop"
-    overhead_period = overhead / self.freq # How long per tick
-    tick_period = instructions_per_loop / self.freq # How long per tick
-    self.sma.put(int(tick_countstart))
+    self.sma.put(int(TICK_COUNTSTART))
     print("Startup")
     # print("tick_countstart=", tick_countstart)
     try:
@@ -77,9 +79,9 @@ class PicoTach:
         if (self.sma.rx_fifo()):
           ticks_from_sm = self.sma.get()
           # This is the Y underflow value
-          if (ticks_from_sm != 4294967295):
-            ticks = tick_countstart - ticks_from_sm # How many ticks
-            period = (ticks * tick_period) + overhead_period # total time that has pasted
+          if (ticks_from_sm != ROLL_UNDER):
+            ticks = TICK_COUNTSTART - ticks_from_sm # How many ticks
+            period = (ticks * TICK_PERIOD) + OVERHEAD_PERIOD # total time that has pasted
             rpm = (1/period) * 60 # time in seconds to minutes, 1/time_secs period to rate / second, * 60
           else:
             rpm = 0
