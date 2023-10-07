@@ -1,9 +1,18 @@
 from rp2 import PIO, StateMachine, asm_pio
 from machine import Pin
-from time import sleep, sleep_ms, sleep_us, ticks_us
+from time import sleep
 
-import select
-import sys
+# Manually loaded libraries from ./lib to PICO lib
+from ssd1306_setup import WIDTH, HEIGHT, setup
+from writer import Writer
+import freesans20  # Font to use
+
+# Now setup the OLED display and a writer for bigger fonts
+use_spi=False
+soft=False    # we use I2C
+oled = setup(use_spi, soft)  # Instantiate display: must inherit from framebuf
+wri = Writer(oled, freesans20, verbose=False)
+wri.set_textpos(oled, row=0, col=0)
 
 # Design
 #
@@ -63,7 +72,9 @@ TICK_COUNTSTART    = int(30 * (FREQ/INSTRUCTS_PER_LOOP)) # Count down for 30 sec
 OVERHEAD           = const(4) # number of overhead instructions for full "loop"
 OVERHEAD_PERIOD    = OVERHEAD / FREQ # How long per tick
 TICK_PERIOD        = INSTRUCTS_PER_LOOP / FREQ # How long per tick
-    
+
+RATE=const(10) # Loops per second
+
 class PicoTach:
   def __init__(self):
 
@@ -73,7 +84,8 @@ class PicoTach:
   def calc(self):
     self.sma.put(int(TICK_COUNTSTART))
     print("Startup")
-    # print("tick_countstart=", tick_countstart)
+    rpm = 0
+    rpm_last = -1
     try:
       while True:
         if (self.sma.rx_fifo()):
@@ -85,8 +97,17 @@ class PicoTach:
             rpm = (1/period) * 60 # time in seconds to minutes, 1/time_secs period to rate / second, * 60
           else:
             rpm = 0
-          print(rpm)
-          # print((1/( (((tick_countstart - self.sma.get()) * instructions_per_loop) + overhead) / self.freq))*60)
+
+        # Only output new numbers
+        if (rpm != rpm_last):
+          # print(rpm)
+          oled.fill(0)
+          wri.set_textpos(oled, row=8, col=0)  # In case a previous test has altered this
+          wri.printstring("RPM: {0:1.1f}".format(rpm))
+          oled.show()
+          rpm_last = rpm
+
+        sleep(1/RATE)
         
     except KeyboardInterrupt:
       print("Good Bye")
