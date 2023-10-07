@@ -46,8 +46,8 @@ def hall_sensor():
 
   # Done so send count down value to main
   label("out")
-  in_(y, 32) # Save y to isr
-  push()     # send isr to main
+  in_(y, 32)    # Save y to isr
+  push(noblock) # send isr to main, don't block even if main is late
   jmp("loop")
 
 # TERMS
