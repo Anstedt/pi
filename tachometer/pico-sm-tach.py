@@ -2,6 +2,9 @@ from rp2 import PIO, StateMachine, asm_pio
 from machine import Pin
 from time import sleep
 
+# Create an output to use the boards LED to indicate state of Sensor
+Hall_State = machine.Pin(25,machine.Pin.OUT) #use on board LED
+
 # Manually loaded libraries from ./lib to PICO lib
 from ssd1306_setup import WIDTH, HEIGHT, setup
 from writer import Writer
@@ -89,6 +92,7 @@ class PicoTach:
     try:
       while True:
         if (self.sma.rx_fifo()):
+          Hall_State.high()
           ticks_from_sm = self.sma.get()
           # This is the Y underflow value
           if (ticks_from_sm != ROLL_UNDER):
@@ -107,6 +111,7 @@ class PicoTach:
           oled.show()
           rpm_last = rpm
 
+        Hall_State.low()
         sleep(1/RATE)
         
     except KeyboardInterrupt:
