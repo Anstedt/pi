@@ -24,3 +24,36 @@
 
 # Pictures
 - Modified sensor board to extend sensor:
+
+# PICO State Machine handling of HALL sensor
+- Reason
+  - The Pure Circuit python seems to have small timing errors that
+    effect the RPM calculation. I assume it is because of the IRQ
+    callback overhead of Python.
+- Method
+  - Use PICO to scan GPIO at a high rate and count the pulses from the
+	HALL sensor and return them to the main Python application for
+	final non-real-time part of the calculation.
+  - I can control the SM(state machine) poll rate when the SM is
+    instantiated.
+  - The trick here is howto count in the SM. I think this works.
+	pull() # To get large number into a register
+	label("main")
+	# set(y, 0xffffffff) # or clear Y then let it decrement to wrap to 0xffffffff
+	mov(y, osr) # This gets big number from pull above
+	label("checking")
+	jmp(pin, got_hit) # Keep looping till we get a hit from the hall sensor
+	jmp("checking")
+	jmp(y_dec, zero) # If y has hit zero do something else ??
+	label("got_hit")
+	move(isr,y)
+	push()
+	jmp("main")
+	
+	So a large number means a long time between hall sensor hits, a
+    low RPM while a small number is a high RPM. Of course the upper
+    level program controls the start value of the counter so it can
+    figure out the rate from there. It also knows the rate of the SM
+    but the actaul states need to be counted by hand via SM code
+    review. In simple case above the loop time is 1 I think since it
+    just loops on the pin.
