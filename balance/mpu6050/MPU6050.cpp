@@ -232,7 +232,8 @@ int MPU6050::get_accel_cal(int addr)
   int accelerometer_data_cal;
 
   // Add in the cal value
-  accelerometer_data_cal = read_raw_data(addr) + m_acc_calibration_value;
+  accelerometer_data_cal = read_raw_data(addr); // HJA want to use value with no
+                                                // offset + m_acc_calibration_value;
 
   // Keep values in range
   if (accelerometer_data_cal > 8200) accelerometer_data_cal = 8200;
