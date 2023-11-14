@@ -116,6 +116,8 @@ void MPU6050::calibrate(void)
   if (accel_raw_avg < -8200) accel_raw_avg = -8200;
 
   // Now calculate the Z value
+  // The 57.296 is the conversions from radians to degrees. The - is so that
+  // leaning forward is positive. The 8200(8192) is from the data sheet for AFS_SEL 1.
   m_acc_Z_cal_ang = (asin((float)(accel_raw_avg) / 8200.0) * -57.296);
   
   SLOG << "Elapsed time = " << float(((gpioTick() - elapsed) / 500)) << "us" << std::endl;

@@ -25,7 +25,7 @@ int g_heartbeat_driver;
 
 void CallBack(int gyro_pitch, int gyro_yaw, float angle_gyro, float angle_acc)
 {
-  SLOG << "Angle Gyro=" << angle_gyro << "\tAngle Accel=" << angle_acc << "\tGyro Pitch=" << gyro_pitch << "\tGyro Yaw=" << gyro_yaw << std::endl;
+  // SLOG << "Angle Gyro=" << angle_gyro << "\tAngle Accel=" << angle_acc << "\tGyro Pitch=" << gyro_pitch << "\tGyro Yaw=" << gyro_yaw << std::endl;
   // SLOG << "Angle Gyro=" << angle_gyro << "\tAngle Accel=" << angle_acc << std::endl;
 
   // The gyro's angle is used to calculated the speed sent to the robot.
